@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package web3.v1;
+
+option go_package = "github.com/the-protobuf-project/web3/plugin/pb/web3v1;web3v1";
+option java_multiple_files = true;
+option java_outer_classname = "FieldProto";
+option java_package = "com.web3.v1";
+
+// FieldOptions configures the contract struct field a proto field maps to: its
+// name, whether it is emitted, per-chain storage-type overrides, and whether it
+// is an indexed event parameter. A field carries one annotation whose per-chain
+// subfields let the same schema compile to every target: solidity_type is read by
+// the EVM targets, solana_type by the Solana target, and Fabric derives Go types
+// directly.
+//
+// Applied via:
+//
+//	string owner = 2 [(web3.v1.field) = {
+//	  solidity_type: "address"
+//	  solana_type:   "Pubkey"
+//	  indexed:       true
+//	}];
+message FieldOptions {
+  // alias is an explicit field name that overrides the default.
+  // Defaults to the proto field name (already snake_case).
+  string alias = 1;
+
+  // skip excludes this field from all output — no field is generated.
+  bool skip = 2;
+
+  // solidity_type overrides the EVM Solidity type the neutral field type would
+  // project to ("address", "uint256", "uint128", "bytes32", "int128", …). Empty
+  // keeps the default projection.
+  string solidity_type = 3;
+
+  // solana_type overrides the Solana/Anchor Rust type the neutral field type
+  // would project to ("Pubkey", "u64", "i64", "[u8; 32]", …). Empty keeps the
+  // default projection.
+  string solana_type = 4;
+
+  // indexed marks the field as an indexed event parameter on EVM: it becomes an
+  // indexed topic in the emitted event and an indexed entity field the subgraph
+  // can filter on. Ignored by non-EVM targets.
+  bool indexed = 5;
+}

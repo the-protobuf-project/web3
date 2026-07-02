@@ -1,0 +1,25 @@
+version: v2
+
+# web3 owns its on-chain rendering option protos (web3.v1) and their generated Go
+# stubs (pb/web3v1), read by the web3 enrichment pass. The generic structural
+# options live in protokit (protokit.v1). Regenerate the stubs with `buf generate`.
+modules:
+  - path: protobuf
+    name: buf.build/the-protobuf-project/web3
+
+  - path: examples/proto
+    # examples/proto can import web3 options and googleapis because they share
+    # this workspace; no separate buf dep update needed during development.
+
+deps:
+  - buf.build/googleapis/googleapis # google.api.resource, field_behavior
+
+lint:
+  use:
+    - STANDARD
+  except:
+    - PACKAGE_VERSION_SUFFIX # web3.v1 is intentionally version-suffixed
+
+breaking:
+  use:
+    - FILE

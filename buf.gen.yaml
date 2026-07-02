@@ -1,0 +1,17 @@
+version: v2
+
+# Regenerates the pre-compiled Go stubs for web3's own option protos (web3.v1).
+#
+# Run:  buf generate --template buf.gen.yaml
+# Out:  plugin/pb/web3v1/*.pb.go
+#
+# The module= opt strips the web3 module prefix from each go_package so the output
+# lands under plugin/pb/ (go_package .../web3/plugin/pb/web3v1 -> plugin/pb/web3v1).
+inputs:
+  - directory: protobuf
+
+plugins:
+  - remote: buf.build/protocolbuffers/go:v1.36.11
+    out: .
+    opt:
+      - module=github.com/the-protobuf-project/web3

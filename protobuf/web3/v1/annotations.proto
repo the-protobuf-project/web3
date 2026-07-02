@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package web3.v1;
+
+import "google/protobuf/descriptor.proto";
+import "web3/v1/chain.proto";
+import "web3/v1/contract.proto";
+import "web3/v1/field.proto";
+
+option go_package = "github.com/the-protobuf-project/web3/plugin/pb/web3v1;web3v1";
+option java_multiple_files = true;
+option java_outer_classname = "AnnotationsProto";
+option java_package = "com.web3.v1";
+
+// annotations.proto is the single import a web3 schema author needs:
+//
+//	import "web3/v1/annotations.proto";
+//
+// It is self-contained and chain-native: grouping + chain selection (chain),
+// contract structure (name, id/timestamp synthesis, access control), and per-chain
+// field rendering (solidity_type / solana_type / indexed) all live under web3.v1,
+// so one schema compiles to EVM, Solana, and Fabric. Field numbers 50000-99999
+// are reserved for non-Google options.
+
+extend google.protobuf.FileOptions {
+  // chain groups the file's contracts into a namespace and selects the target chain.
+  ChainOptions chain = 50000;
+}
+
+extend google.protobuf.MessageOptions {
+  // contract overrides contract-level generation: name, id strategy, timestamps, access.
+  ContractOptions contract = 50001;
+}
+
+extend google.protobuf.FieldOptions {
+  // field overrides field-level generation: name, skip, per-chain type, indexed.
+  FieldOptions field = 50002;
+}

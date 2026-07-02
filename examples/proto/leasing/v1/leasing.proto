@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package leasing.v1;
+
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "web3/v1/annotations.proto";
+
+// The whole file compiles to one namespace ("leasing") on EVM. The same schema
+// also generates a Solana Anchor program and Fabric chaincode — the per-field
+// solidity_type / solana_type overrides give each chain its native storage type.
+option (web3.v1.chain) = {
+  namespace: "leasing"
+  chain: CHAIN_EVM
+};
+
+// Agreement is an on-chain lease between a landlord and a tenant. Per-record
+// ownership: the account that creates an agreement is the only one that may
+// update or terminate it.
+message Agreement {
+  option (google.api.resource) = {
+    type: "leasing.v1/Agreement"
+    pattern: "agreements/{agreement}"
+    singular: "agreement"
+    plural: "agreements"
+  };
+  option (web3.v1.contract) = {access: ACCESS_CONTROL_PER_RECORD_OWNER};
+
+  // id is the agreement identifier used as the on-chain record key.
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+
+  // landlord is the property owner's wallet address.
+  string landlord = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (web3.v1.field) = {
+      solidity_type: "address"
+      solana_type: "Pubkey"
+      indexed: true
+    }
+  ];
+
+  // tenant is the renter's wallet address.
+  string tenant = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (web3.v1.field) = {
+      solidity_type: "address"
+      solana_type: "Pubkey"
+      indexed: true
+    }
+  ];
+
+  // property_hash is the keccak256 of the off-chain property/lease document.
+  bytes property_hash = 4 [(web3.v1.field) = {
+    solidity_type: "bytes32"
+    solana_type: "[u8; 32]"
+  }];
+
+  // rent_wei is the recurring monthly rent, in wei.
+  uint64 rent_wei = 5 [(web3.v1.field) = {solidity_type: "uint256"}];
+
+  // deposit_wei is the security deposit held in escrow, in wei.
+  uint64 deposit_wei = 6 [(web3.v1.field) = {solidity_type: "uint256"}];
+
+  // start_date is the lease start, as a unix timestamp.
+  int64 start_date = 7;
+
+  // end_date is the lease end, as a unix timestamp.
+  int64 end_date = 8;
+
+  // status is the lease lifecycle state.
+  LeaseStatus status = 9;
+}
+
+// LeaseStatus is the lifecycle of an Agreement.
+enum LeaseStatus {
+  LEASE_STATUS_UNSPECIFIED = 0;
+
+  // ACTIVE: the lease is in effect.
+  LEASE_STATUS_ACTIVE = 1;
+
+  // TERMINATED: ended early by either party.
+  LEASE_STATUS_TERMINATED = 2;
+
+  // COMPLETED: ran to its natural end.
+  LEASE_STATUS_COMPLETED = 3;
+}

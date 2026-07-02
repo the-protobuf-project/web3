@@ -1,0 +1,293 @@
+[
+  {
+    "type": "function",
+    "name": "SCHEMA_VERSION",
+    "inputs": null,
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "create",
+    "inputs": [
+      {
+        "name": "record",
+        "type": "tuple",
+        "components": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "landlord",
+            "type": "address"
+          },
+          {
+            "name": "tenant",
+            "type": "address"
+          },
+          {
+            "name": "propertyHash",
+            "type": "bytes32"
+          },
+          {
+            "name": "rentWei",
+            "type": "uint256"
+          },
+          {
+            "name": "depositWei",
+            "type": "uint256"
+          },
+          {
+            "name": "startDate",
+            "type": "int64"
+          },
+          {
+            "name": "endDate",
+            "type": "int64"
+          },
+          {
+            "name": "status",
+            "type": "uint8"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "get",
+    "inputs": [
+      {
+        "name": "key",
+        "type": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "components": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "landlord",
+            "type": "address"
+          },
+          {
+            "name": "tenant",
+            "type": "address"
+          },
+          {
+            "name": "propertyHash",
+            "type": "bytes32"
+          },
+          {
+            "name": "rentWei",
+            "type": "uint256"
+          },
+          {
+            "name": "depositWei",
+            "type": "uint256"
+          },
+          {
+            "name": "startDate",
+            "type": "int64"
+          },
+          {
+            "name": "endDate",
+            "type": "int64"
+          },
+          {
+            "name": "status",
+            "type": "uint8"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "update",
+    "inputs": [
+      {
+        "name": "record",
+        "type": "tuple",
+        "components": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "landlord",
+            "type": "address"
+          },
+          {
+            "name": "tenant",
+            "type": "address"
+          },
+          {
+            "name": "propertyHash",
+            "type": "bytes32"
+          },
+          {
+            "name": "rentWei",
+            "type": "uint256"
+          },
+          {
+            "name": "depositWei",
+            "type": "uint256"
+          },
+          {
+            "name": "startDate",
+            "type": "int64"
+          },
+          {
+            "name": "endDate",
+            "type": "int64"
+          },
+          {
+            "name": "status",
+            "type": "uint8"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "remove",
+    "inputs": [
+      {
+        "name": "key",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "exists",
+    "inputs": [
+      {
+        "name": "key",
+        "type": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "count",
+    "inputs": null,
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "list",
+    "inputs": null,
+    "outputs": [
+      {
+        "name": "items",
+        "type": "tuple[]",
+        "components": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "landlord",
+            "type": "address"
+          },
+          {
+            "name": "tenant",
+            "type": "address"
+          },
+          {
+            "name": "propertyHash",
+            "type": "bytes32"
+          },
+          {
+            "name": "rentWei",
+            "type": "uint256"
+          },
+          {
+            "name": "depositWei",
+            "type": "uint256"
+          },
+          {
+            "name": "startDate",
+            "type": "int64"
+          },
+          {
+            "name": "endDate",
+            "type": "int64"
+          },
+          {
+            "name": "status",
+            "type": "uint8"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "event",
+    "name": "AgreementCreated",
+    "inputs": [
+      {
+        "name": "key",
+        "type": "string",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AgreementUpdated",
+    "inputs": [
+      {
+        "name": "key",
+        "type": "string",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AgreementDeleted",
+    "inputs": [
+      {
+        "name": "key",
+        "type": "string",
+        "indexed": false
+      }
+    ],
+    "anonymous": false
+  }
+]

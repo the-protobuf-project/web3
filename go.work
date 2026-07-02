@@ -1,0 +1,9 @@
+go 1.26.4
+
+// Root module — the protoc-gen-web3 plugin binary + generated web3.v1 pb stubs.
+use .
+
+// Examples are a separate module so their Fabric chaincode dependencies don't
+// pollute the plugin's dependency graph. The generated Solidity/Anchor/subgraph
+// trees are non-Go artifacts; only the Fabric chaincode Go compiles here.
+use ./examples

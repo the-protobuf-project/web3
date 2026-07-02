@@ -1,0 +1,47 @@
+version: v2
+
+# Generates every chain target from the leasing + payslip example protos.
+# Run: buf generate --template buf.gen.example.yaml
+#
+# One annotated schema compiles to four on-chain outputs:
+#   solidity/<ns>/<Contract>.sol   EVM storage contracts + Foundry scaffold
+#   subgraph/<ns>/                 The Graph subgraph indexing their events
+#   solana/<ns>/programs/          Anchor (Rust) programs
+#   chaincode/<ns>/                Hyperledger Fabric (Go) chaincode
+#
+# The M entries supply the Go import-path mapping protogen requires for every
+# .proto; only the Go targets (chaincode) actually use it.
+inputs:
+  - directory: examples/proto
+
+plugins:
+  - local: protoc-gen-web3
+    out: examples/generated/solidity
+    opt:
+      - target=solidity
+      - Mleasing/v1/leasing.proto=github.com/the-protobuf-project/web3/examples/gen/leasing/v1
+      - Mpayroll/v1/payslip.proto=github.com/the-protobuf-project/web3/examples/gen/payroll/v1
+
+  - local: protoc-gen-web3
+    out: examples/generated/subgraph
+    opt:
+      - target=subgraph
+      - Mleasing/v1/leasing.proto=github.com/the-protobuf-project/web3/examples/gen/leasing/v1
+      - Mpayroll/v1/payslip.proto=github.com/the-protobuf-project/web3/examples/gen/payroll/v1
+
+  - local: protoc-gen-web3
+    out: examples/generated/solana
+    opt:
+      - target=solana
+      - Mleasing/v1/leasing.proto=github.com/the-protobuf-project/web3/examples/gen/leasing/v1
+      - Mpayroll/v1/payslip.proto=github.com/the-protobuf-project/web3/examples/gen/payroll/v1
+
+  - local: protoc-gen-web3
+    out: examples/generated/chaincode
+    opt:
+      - target=chaincode
+      # go_module places the generated chaincode inside the examples module (no
+      # per-database go.mod), so it compiles under examples/go.mod + ../go.work.
+      - go_module=github.com/the-protobuf-project/web3/examples/generated/chaincode
+      - Mleasing/v1/leasing.proto=github.com/the-protobuf-project/web3/examples/gen/leasing/v1
+      - Mpayroll/v1/payslip.proto=github.com/the-protobuf-project/web3/examples/gen/payroll/v1

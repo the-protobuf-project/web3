@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package web3.v1;
+
+option go_package = "github.com/the-protobuf-project/web3/plugin/pb/web3v1;web3v1";
+option java_multiple_files = true;
+option java_outer_classname = "ChainProto";
+option java_package = "com.web3.v1";
+
+// ChainOptions groups a file's contracts into one deployment namespace and
+// selects which blockchain they compile to. Files that share the same namespace
+// merge into a single generated output tree.
+//
+// Applied via:
+//
+//	option (web3.v1.chain) = {
+//	  namespace: "leasing"
+//	  chain: CHAIN_EVM
+//	};
+message ChainOptions {
+  // namespace groups the file's contracts into one generated output tree.
+  // Defaults to the last segment of the proto package name.
+  string namespace = 1;
+
+  // group overrides the sub-namespace (module/package) the contracts live in.
+  // When unset it is inferred from the google.api.resource.type prefix
+  // ("leasing.v1/Agreement" → "leasing_v1").
+  string group = 2;
+
+  // chain selects the target blockchain the contracts compile to. It picks the
+  // generator's type projection (e.g. Solidity vs Anchor Rust) and is recorded in
+  // generated headers.
+  Chain chain = 3;
+}
+
+// Chain enumerates the blockchains web3 can target from one proto schema.
+enum Chain {
+  // Defaults to EVM.
+  CHAIN_UNSPECIFIED = 0;
+
+  // EVM: Solidity storage contracts (target=solidity) + a The Graph subgraph
+  // that indexes their events (target=subgraph).
+  CHAIN_EVM = 1;
+
+  // Solana: Anchor (Rust) programs with per-account state (target=solana).
+  CHAIN_SOLANA = 2;
+
+  // Hyperledger Fabric: Go chaincode implementing the contract API
+  // (target=chaincode).
+  CHAIN_FABRIC = 3;
+}

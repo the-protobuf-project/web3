@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package payroll.v1;
+
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "web3/v1/annotations.proto";
+
+option (web3.v1.chain) = {
+  namespace: "payroll"
+  chain: CHAIN_EVM
+};
+
+// Payslip is an on-chain salary payment record. Ownable: only the deploying
+// employer authority may write payslips; reads stay open so an employee can
+// verify their own record.
+message Payslip {
+  option (google.api.resource) = {
+    type: "payroll.v1/Payslip"
+    pattern: "payslips/{payslip}"
+    singular: "payslip"
+    plural: "payslips"
+  };
+  option (web3.v1.contract) = {access: ACCESS_CONTROL_OWNABLE};
+
+  // id is the payslip identifier used as the on-chain record key.
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+
+  // employer is the paying company's wallet address.
+  string employer = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (web3.v1.field) = {
+      solidity_type: "address"
+      solana_type: "Pubkey"
+      indexed: true
+    }
+  ];
+
+  // employee is the recipient's wallet address.
+  string employee = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (web3.v1.field) = {
+      solidity_type: "address"
+      solana_type: "Pubkey"
+      indexed: true
+    }
+  ];
+
+  // gross_wei is the gross salary for the period, in wei.
+  uint64 gross_wei = 4 [(web3.v1.field) = {solidity_type: "uint256"}];
+
+  // tax_wei is the withheld tax for the period, in wei.
+  uint64 tax_wei = 5 [(web3.v1.field) = {solidity_type: "uint256"}];
+
+  // net_wei is the net amount actually paid, in wei.
+  uint64 net_wei = 6 [(web3.v1.field) = {solidity_type: "uint256"}];
+
+  // period is the pay period the slip covers (e.g. "2026-06").
+  string period = 7 [(google.api.field_behavior) = REQUIRED];
+
+  // paid_at is the settlement time, as a unix timestamp.
+  int64 paid_at = 8;
+}

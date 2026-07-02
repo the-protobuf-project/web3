@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+// Package reserved.v1 exercises SQL-reserved-word identifier quoting: the table
+// name and several columns collide with reserved words (user, order, select),
+// which must emit as quoted identifiers to produce valid DDL.
+package reserved.v1;
+
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "web3/v1/annotations.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "ReservedWordsProto";
+option java_package = "com.reserved.v1";
+option (web3.v1.chain) = {
+  namespace: "reserved_db"
+  group: "public"
+};
+
+// Account is forced onto the reserved table name "user" via a table override,
+// with reserved-word columns and a composite UNIQUE index over them.
+message Account {
+  option (google.api.resource) = {
+    type: "reserved.v1/Account"
+    pattern: "accounts/{account}"
+    singular: "account"
+    plural: "accounts"
+  };
+  option (web3.v1.contract) = {alias: "user"};
+
+  // name: IDENTIFIER → PRIMARY KEY.
+  string name = 1 [(google.api.field_behavior) = IDENTIFIER];
+
+  // order is a reserved word; also carries a single-column index.
+  string order = 2;
+
+  // select is a reserved word.
+  string select = 3;
+
+  // state exercises a quoted, schema-qualified enum type reference.
+  State state = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// State is the account lifecycle state.
+enum State {
+  // STATE_UNSPECIFIED is the zero value; the account state is unset.
+  STATE_UNSPECIFIED = 0;
+
+  // STATE_ACTIVE marks an open, usable account.
+  STATE_ACTIVE = 1;
+
+  // STATE_CLOSED marks a deactivated account.
+  STATE_CLOSED = 2;
+}

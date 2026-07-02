@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package embedded.v1;
+
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "example.com/test/gen;embeddedv1";
+option java_multiple_files = true;
+option java_outer_classname = "EmbeddedProto";
+option java_package = "com.example.embedded.v1";
+
+// Event exercises nested-message normalization: a singular message field
+// becomes a belongs-to relation, a repeated message field becomes a has-many,
+// while well-known and map fields stay scalar / JSONB.
+message Event {
+  option (google.api.resource) = {
+    type: "embedded.v1/Event"
+    pattern: "events/{event}"
+    singular: "event"
+    plural: "events"
+  };
+
+  // Resource name; the AIP identifier.
+  string name = 1 [(google.api.field_behavior) = IDENTIFIER];
+
+  // Required single embedded message → belongs-to (event holds location_id).
+  Location location = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Repeated attendee resource names.
+  repeated string attendees = 3 [(google.api.resource_reference) = {type: "embedded.v1/Attendee"}];
+
+  // Well-known type stays a scalar column, not a relation.
+  google.protobuf.Timestamp create_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Map fields stay JSONB.
+  map<string, string> labels = 5;
+
+  // A second field of the same message type forces named relations on both
+  // sides (Prisma rejects two unnamed relations between the same model pair).
+  Location billing = 6;
+
+  // A nested message is always relationalized into its own child table with a
+  // primary key + foreign key — never flattened into an opaque JSONB column.
+  // Metadata carries no IDENTIFIER, so a ULID `id` primary key is synthesized.
+  Metadata metadata = 7;
+}
+
+// Metadata is reachable only through Event.metadata and carries no resource
+// annotation, yet it still becomes its own table (with a synthesized primary
+// key) rather than an inlined JSONB blob.
+message Metadata {
+  // Free-form source system label.
+  string source = 1;
+  // Arbitrary tags.
+  repeated string tags = 2;
+  // Singular resource reference → belongs-to with a bare-named FK column
+  // (`owner`, no `_id`). Its auto-index must name the scalar field `ownerID`,
+  // not the `owner` relation field, or Prisma rejects the @@index.
+  string owner = 3 [(google.api.resource_reference) = {type: "embedded.v1/Attendee"}];
+}
+
+// Location is reachable from Event and so becomes its own table; its existing
+// `id` field is promoted to the primary key.
+message Location {
+  // Unique identifier for the location, assigned by the server.
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // City where the location resides.
+  string city = 2 [(google.api.field_behavior) = REQUIRED];
+  // Venue name within the city.
+  string venue = 3;
+}
+
+// Attendee carries an IDENTIFIER, so that field is its primary key.
+message Attendee {
+  option (google.api.resource) = {
+    type: "embedded.v1/Attendee"
+    pattern: "events/{event}/attendees/{attendee}"
+    singular: "attendee"
+    plural: "attendees"
+  };
+
+  // Resource name; the AIP identifier.
+  string name = 1 [(google.api.field_behavior) = IDENTIFIER];
+  // Email address of the attendee.
+  string email = 2 [(google.api.field_behavior) = REQUIRED];
+}

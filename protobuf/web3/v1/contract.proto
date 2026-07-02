@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package web3.v1;
+
+option go_package = "github.com/the-protobuf-project/web3/plugin/pb/web3v1;web3v1";
+option java_multiple_files = true;
+option java_outer_classname = "ContractProto";
+option java_package = "com.web3.v1";
+
+// ContractOptions configures the smart contract (EVM), program account (Solana),
+// or chaincode asset (Fabric) a message maps to: its name, whether it is emitted,
+// the on-chain record-key synthesis, audit timestamps, and the access-control
+// model guarding writes.
+//
+// Applied via:
+//
+//	option (web3.v1.contract) = {
+//	  id: ID_STRATEGY_ULID
+//	  access: ACCESS_CONTROL_PER_RECORD_OWNER
+//	};
+message ContractOptions {
+  // alias is an explicit contract/program/asset name that overrides the default.
+  // Defaults to the google.api.resource.type suffix.
+  string alias = 1;
+
+  // skip excludes this message from all output — no contract is generated.
+  bool skip = 2;
+
+  // id synthesizes a generated record key (ULID or UUID) used as the on-chain
+  // mapping/account key, and demotes the IDENTIFIER field to a unique field.
+  IdStrategy id = 3;
+
+  // timestamps appends created_at / updated_at fields recording the block time of
+  // the last write (uint256 on EVM, i64 on Solana, int64 on Fabric).
+  bool timestamps = 4;
+
+  // access selects the access-control model the generator wires into the
+  // contract's write methods (create/update/remove). Read methods stay open.
+  AccessControl access = 5;
+}
+
+// IdStrategy selects how the on-chain record key is generated for a contract.
+enum IdStrategy {
+  // No synthesized key: the IDENTIFIER field stays the record key.
+  ID_STRATEGY_UNSPECIFIED = 0;
+
+  // ULID key (26-char lexicographically sortable identifier).
+  ID_STRATEGY_ULID = 1;
+
+  // UUID key.
+  ID_STRATEGY_UUID = 2;
+}
+
+// AccessControl selects who may mutate a generated contract's state. Read
+// methods stay open; the model guards create/update/remove.
+enum AccessControl {
+  // No guards: any account may write. The default, matching a public registry.
+  ACCESS_CONTROL_UNSPECIFIED = 0;
+
+  // Single contract owner (e.g. OpenZeppelin Ownable on EVM): only the
+  // deployer/owner may write. Suitable for an authority-operated resource.
+  ACCESS_CONTROL_OWNABLE = 1;
+
+  // Per-record ownership: the account that creates a record is its owner, and
+  // only that owner may update or remove it.
+  ACCESS_CONTROL_PER_RECORD_OWNER = 2;
+}
