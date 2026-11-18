@@ -6,5 +6,3 @@ updates:
       - "/examples"
     schedule:
       interval: "weekly"
-    assignees:
-      - "ParthuReddy31"
