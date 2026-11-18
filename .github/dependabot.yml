@@ -1,0 +1,10 @@
+version: 2
+updates:
+  - package-ecosystem: "gomod"
+    directories:
+      - "/"
+      - "/examples"
+    schedule:
+      interval: "weekly"
+    assignees:
+      - "ParthuReddy31"
